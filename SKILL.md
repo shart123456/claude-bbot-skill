@@ -182,6 +182,91 @@ jq -r '.type' $LATEST/output.ndjson 2>/dev/null | sort | uniq -c | sort -rn
 
 ---
 
+## Memory Integration
+
+Requires the `memory` skill and Qdrant running (`qdrant-store` / `qdrant-find` MCP tools available).
+
+### At Scan Start — Query Prior Knowledge
+
+Before running any scan, query `target_intel` for existing context on the target:
+
+```
+Tool: qdrant-find
+Collection: target_intel
+Query: "scope technology stack WAF [target]"
+```
+
+Use retrieved intel to:
+- Pre-populate `--blacklist` with known out-of-scope assets
+- Adjust rate limits if WAF notes exist
+- Skip modules for tech stacks already fully mapped
+
+Also query `skill_learnings` if choosing between scan strategies:
+```
+Tool: qdrant-find
+Collection: skill_learnings
+Query: "bbot [scan_type] [target characteristics]"
+```
+
+### After Scan — Store Key Findings
+
+After result parsing, store findings to Qdrant. Prioritize:
+- All VULNERABILITY and FINDING events (severity medium+)
+- All TECHNOLOGY events (unique per target)
+- All STORAGE_BUCKET events
+- Subdomain count + notable new subdomains
+- Open ports on non-standard ports
+
+**Store format for scan findings:**
+```
+Tool: qdrant-store
+Collection: scan_findings
+Content: [natural language description of the finding]
+Metadata: {
+  "target": "$TARGET",
+  "finding_type": "vulnerability|technology|storage_bucket|subdomain|open_port",
+  "data": "[finding value]",
+  "severity": "info|low|medium|high|critical",
+  "source_module": "[bbot_module]",
+  "scan_id": "[scan_name]",
+  "scan_type": "passive|safe_active|full_engagement|vuln_scan|cloud_hunt",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+**Store tech stack summary to target_intel:**
+```
+Tool: qdrant-store
+Collection: target_intel
+Content: [target] uses [technologies] — detected during [scan_type] scan on [date]
+Metadata: {
+  "target": "$TARGET",
+  "intel_type": "technology",
+  "data": "[comma-separated technologies]",
+  "confidence": "verified",
+  "source": "scan",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+### Store Scan Learnings
+
+If a non-obvious flag combination or approach produced good results:
+```
+Tool: qdrant-store
+Collection: skill_learnings
+Content: [description of what worked and why]
+Metadata: {
+  "skill": "bbot",
+  "context": "[target type / scenario]",
+  "what_worked": "[approach description]",
+  "command": "[exact command]",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+---
+
 ## Example User Requests
 
 - "Run a passive BBOT scan for tesla.com"

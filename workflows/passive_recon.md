@@ -191,6 +191,52 @@ cat $LATEST/output.ndjson | \
 
 ---
 
+## Memory Integration
+
+After completing passive recon, store key findings to Qdrant (if `qdrant-store` is available):
+
+```bash
+# Get summary stats for storage
+SCAN_DIR=~/bug_bounty/$COMPANY/bbot_scans/
+LATEST=$(ls -td $SCAN_DIR/*/ | head -1)
+SUBDOMAIN_COUNT=$(cat $LATEST/subdomains.txt 2>/dev/null | wc -l)
+FINDING_COUNT=$(jq -r 'select(.type=="FINDING")' $LATEST/output.ndjson 2>/dev/null | wc -l)
+```
+
+**Store scan summary (scan_findings):**
+```
+Tool: qdrant-store
+Collection: scan_findings
+Content: Passive recon on [TARGET] found [N] subdomains, [N] findings from cert transparency and passive DNS sources
+Metadata: {
+  "target": "[TARGET]",
+  "finding_type": "subdomain",
+  "data": "[N] subdomains discovered",
+  "severity": "info",
+  "source_module": "passive_recon_workflow",
+  "scan_id": "[SCAN_NAME]",
+  "scan_type": "passive",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+**Store each notable finding individually** (vulnerabilities, code repos, storage buckets):
+```
+Tool: qdrant-store
+Collection: scan_findings
+Content: [natural language description]
+Metadata: { "target": "...", "finding_type": "...", "data": "...", "severity": "...", ... }
+```
+
+**At scan start — query prior intel:**
+```
+Tool: qdrant-find
+Collection: target_intel
+Query: "scope and technology for [TARGET]"
+```
+
+---
+
 ## Safety Checklist
 
 - [ ] No modules with `active` flag included

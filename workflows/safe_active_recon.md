@@ -189,6 +189,71 @@ jq -r 'select(.type=="OPEN_TCP_PORT") | .data' $LATEST/output.ndjson 2>/dev/null
 
 ---
 
+## Memory Integration
+
+After completing safe active recon, store findings to Qdrant (if `qdrant-store` is available):
+
+**At scan start — query prior intel:**
+```
+Tool: qdrant-find
+Collection: target_intel
+Query: "scope WAF rate limits technology stack [TARGET]"
+```
+
+**After scan — store vulnerability findings:**
+For each VULNERABILITY or FINDING of severity medium+:
+```
+Tool: qdrant-store
+Collection: scan_findings
+Content: [severity] vulnerability [name] found on [host]:[port] via [module]
+Metadata: {
+  "target": "[TARGET]",
+  "finding_type": "vulnerability",
+  "data": "[vuln name and host]",
+  "severity": "high",
+  "source_module": "[module]",
+  "host": "[host]",
+  "port": [port],
+  "scan_id": "[SCAN_NAME]",
+  "scan_type": "safe_active",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+**After scan — store technology stack to target_intel:**
+```
+Tool: qdrant-store
+Collection: target_intel
+Content: [TARGET] technology stack: [technologies] — detected during safe active recon
+Metadata: {
+  "target": "[TARGET]",
+  "intel_type": "technology",
+  "data": "[technologies]",
+  "confidence": "verified",
+  "source": "scan",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+**After scan — store open ports summary:**
+```
+Tool: qdrant-store
+Collection: scan_findings
+Content: Safe active scan on [TARGET] found [N] open ports: [notable ports]
+Metadata: {
+  "target": "[TARGET]",
+  "finding_type": "open_port",
+  "data": "[port list]",
+  "severity": "info",
+  "source_module": "portscan",
+  "scan_id": "[SCAN_NAME]",
+  "scan_type": "safe_active",
+  "timestamp": "[ISO 8601]"
+}
+```
+
+---
+
 ## Next Steps After Safe Active
 
 Based on findings, proceed to targeted testing:
