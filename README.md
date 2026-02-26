@@ -20,24 +20,49 @@ Covers all 117+ BBOT modules organized by category:
 ## Structure
 
 ```
-SKILL.md                  - Skill definition and activation triggers
-CLAUDE.md                 - Full BBOT technical reference
-modules/                  - Module documentation by category
-workflows/                - Pre-built scan workflows for common scenarios
+bbot/
+├── SKILL.md                                  - Skill definition, triggers, workflow routing
+├── configs/                                  - API key templates, custom preset YAMLs
+├── data/                                     - Wordlists, target scope files
+├── documentation/
+│   ├── bbot_technical_reference.md           - Full BBOT config and architecture reference
+│   ├── modules_cloud_enumeration.md          - Cloud and storage modules
+│   ├── modules_code_repository.md            - GitHub, GitLab, Postman, Docker modules
+│   ├── modules_dns_subdomain_enum.md         - DNS and subdomain enumeration modules
+│   ├── modules_email_credentials.md          - Email and credential discovery modules
+│   ├── modules_ip_intelligence.md            - IP intelligence and tech detection modules
+│   ├── modules_output_modules.md             - Output and reporting modules
+│   ├── modules_port_scanning.md              - Port scanning and service detection modules
+│   ├── modules_vulnerability_scanning.md     - Vulnerability scanning modules
+│   └── modules_web_scanning.md               - Web scanning and fuzzing modules
+├── examples/                                 - Sample execution flows
+├── playbooks/                                - Multi-workflow orchestration guides
+├── cauldron/                                 - Runtime scan artifacts and output
+├── resources/                                - Helper scripts and API integration docs
+├── templates/                                - Scan report output templates
+└── workflows/
+    ├── passive_recon.md                      - Zero-contact recon, API sources only
+    ├── safe_active_recon.md                  - Light active scanning, safe for most programs
+    ├── full_engagement.md                    - Comprehensive 8-phase engagement
+    ├── subdomain_takeover.md                 - Dangling DNS and zone takeover detection
+    ├── vuln_scan.md                          - Nuclei + badsecrets + baddns
+    ├── cloud_hunt.md                         - S3, GCS, Azure blob enumeration
+    ├── web_app_audit.md                      - Parameter mining, fuzzing, secret detection
+    └── code_leak_hunt.md                     - GitHub, GitLab, Postman, Trufflehog
 ```
 
 ## Workflows
 
 | Workflow | Description |
 |---|---|
-| `passive-recon` | No direct target interaction, API sources only |
-| `safe-active-recon` | Light active scanning, safe for most programs |
-| `full-engagement` | Comprehensive scan for permissive scopes |
-| `subdomain-takeover` | Detect dangling DNS and takeover candidates |
-| `vuln-scan` | Nuclei + badsecrets + baddns on live hosts |
-| `cloud-hunt` | S3, GCS, Azure blob enumeration |
-| `web-app-audit` | Parameter mining, secret detection, web fuzzing |
-| `code-leak-hunt` | GitHub, GitLab, Postman, Trufflehog |
+| `passive_recon` | No direct target interaction, API sources only |
+| `safe_active_recon` | Light active scanning, safe for most programs |
+| `full_engagement` | Comprehensive 8-phase scan for permissive scopes |
+| `subdomain_takeover` | Detect dangling DNS and takeover candidates |
+| `vuln_scan` | Nuclei + badsecrets + baddns on live hosts |
+| `cloud_hunt` | S3, GCS, Azure blob enumeration |
+| `web_app_audit` | Parameter mining, secret detection, web fuzzing |
+| `code_leak_hunt` | GitHub, GitLab, Postman, Trufflehog |
 
 ## Requirements
 
