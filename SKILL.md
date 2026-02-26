@@ -1,7 +1,7 @@
 ---
-name: bbot
+name: skilled-bbot
 description: |-
-  BBOT bug bounty reconnaissance skill. Executes intelligent BBOT scans that
+  skilled-bbot: BBOT bug bounty reconnaissance skill. Executes intelligent BBOT scans that
   stay within program scope, respect rate limits, and configure modules based
   on bug bounty program policies. Covers 124 modules across DNS, port scanning,
   web fuzzing, vulnerability scanning, cloud storage, mobile app recon, and code repository discovery.
